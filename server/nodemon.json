@@ -1,0 +1,13 @@
+{
+  "watch": ["."],
+  "ext": "js,json",
+  "ignore": ["node_modules", "*.test.js", "*.spec.js"],
+  "exec": "node server.js",
+  "delay": "1000",
+  "verbose": true,
+  "env": {
+    "NODE_ENV": "development"
+  },
+  "legacyWatch": false
+}
+
