@@ -1,162 +1,305 @@
-import React, { useState } from 'react'
+import React, { useState } from "react";
 import { toast } from "react-toastify";
+import * as yaml from "js-yaml";
 import "react-toastify/dist/ReactToastify.css";
 
-
 function Converter() {
+  const [sourceType, setSourceType] = useState("json");
+  const [destType, setDestType] = useState("env");
+  const [input, setInput] = useState("");
+  const [result, setResult] = useState("");
+  const [error, setError] = useState("");
 
-    const [jsonToEnvInput, setJsonToEnvInput] = useState("");
-    const [jsonToEnvResult, setJsonToEnvResult] = useState("");
-    const [jsonToEnvError, setJsonToEnvError] = useState("");
+  const copyToClipboard = (text) => {
+    navigator.clipboard.writeText(text);
+    toast.success("Copied to clipboard!", {
+      position: "top-right",
+      autoClose: 1000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+    });
+  };
 
-    const copyToClipboard = (text) => {
-        navigator.clipboard.writeText(text);
-        toast.success("Copied to clipboard!", {
-          position: "top-right",
-          autoClose: 1000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-        });
-      };
+  const parseInput = (text, type) => {
+    switch (type.toLowerCase()) {
+      case "json":
+        try {
+          const parsed = JSON.parse(text);
+          if (typeof parsed !== "object" || parsed === null) {
+            throw new Error("JSON must be an object");
+          }
+          return parsed;
+        } catch (e) {
+          throw new Error(`Invalid JSON: ${e.message}`);
+        }
 
-    const flattenObject = (obj, prefix = "", result = {}) => {
-        for (const key in obj) {
-          if (obj.hasOwnProperty(key)) {
-            const newKey = prefix ? `${prefix}_${key}` : key;
-            const value = obj[key];
-    
-            if (
-              value !== null &&
-              typeof value === "object" &&
-              !Array.isArray(value)
-            ) {
-              flattenObject(value, newKey.toUpperCase(), result);
-            } else {
-              if (Array.isArray(value)) {
-                result[newKey.toUpperCase()] = JSON.stringify(value);
-              } else if (typeof value === "string") {
-                result[newKey.toUpperCase()] = value;
+      case "yml":
+      case "yaml":
+        try {
+          const parsed = yaml.load(text);
+          if (typeof parsed !== "object" || parsed === null) {
+            throw new Error("YAML must represent an object");
+          }
+          return parsed;
+        } catch (e) {
+          throw new Error(`Invalid YAML: ${e.message}`);
+        }
+
+      case "formdata":
+        try {
+          const obj = {};
+          const lines = text.trim().split("\n");
+          lines.forEach((line) => {
+            line = line.trim();
+            if (!line || line.startsWith("#")) return;
+
+            if (line.includes("=")) {
+              const [key, ...valueParts] = line.split("=");
+              const value = valueParts.join("=").trim();
+              const cleanValue = value.replace(/^["']|["']$/g, "");
+              obj[key.trim()] = cleanValue;
+            }
+          });
+          return obj;
+        } catch (e) {
+          throw new Error(`Invalid FormData: ${e.message}`);
+        }
+
+      default:
+        throw new Error(`Unsupported source type: ${type}`);
+    }
+  };
+
+  const convertToFormat = (obj, type) => {
+    switch (type.toLowerCase()) {
+      case "json":
+        return JSON.stringify(obj, null, 2);
+
+      case "yml":
+      case "yaml":
+        try {
+          return yaml.dump(obj, {
+            indent: 2,
+            lineWidth: -1,
+            noRefs: true,
+            sortKeys: false,
+          });
+        } catch (e) {
+          throw new Error(`Error converting to YAML: ${e.message}`);
+        }
+
+      case "env":
+        const flattenObject = (obj, prefix = "", result = {}) => {
+          for (const key in obj) {
+            if (obj.hasOwnProperty(key)) {
+              const newKey = prefix ? `${prefix}_${key}` : key;
+              const value = obj[key];
+
+              if (
+                value !== null &&
+                typeof value === "object" &&
+                !Array.isArray(value)
+              ) {
+                flattenObject(value, newKey.toUpperCase(), result);
               } else {
-                result[newKey.toUpperCase()] = String(value);
+                if (Array.isArray(value)) {
+                  result[newKey.toUpperCase()] = JSON.stringify(value);
+                } else if (typeof value === "string") {
+                  result[newKey.toUpperCase()] = value;
+                } else {
+                  result[newKey.toUpperCase()] = String(value);
+                }
               }
             }
           }
-        }
-        return result;
-      };
-    
-      const handleJsonToEnv = (e) => {
-        e.preventDefault();
-        setJsonToEnvError("");
-        setJsonToEnvResult("");
-    
-        if (!jsonToEnvInput.trim()) {
-          setJsonToEnvError("Please enter JSON to convert");
-          return;
-        }
-    
-        try {
-          const parsed = JSON.parse(jsonToEnvInput);
-    
-          if (
-            typeof parsed !== "object" ||
-            parsed === null ||
-            Array.isArray(parsed)
-          ) {
-            setJsonToEnvError(
-              "Please provide a valid JSON object (not an array or primitive)"
-            );
-            return;
-          }
-    
-          const flattened = flattenObject(parsed);
-    
-          const envFormat = Object.entries(flattened)
-            .map(([key, value]) => {
-              const needsQuotes =
-                value.includes(" ") || value.includes("#") || value.includes("=");
-              if (needsQuotes) {
-                return `${key}="${value.replace(/"/g, '\\"')}"`;
+          return result;
+        };
+
+        const flattened = flattenObject(obj);
+        return Object.entries(flattened)
+          .map(([key, value]) => {
+            const needsQuotes =
+              value.includes(" ") || value.includes("#") || value.includes("=");
+            if (needsQuotes) {
+              return `${key}="${value.replace(/"/g, '\\"')}"`;
+            }
+            return `${key}=${value}`;
+          })
+          .join("\n");
+
+      case "formdata":
+        const formDataToString = (obj, prefix = "") => {
+          const lines = [];
+          for (const key in obj) {
+            if (obj.hasOwnProperty(key)) {
+              const fullKey = prefix ? `${prefix}[${key}]` : key;
+              const value = obj[key];
+
+              if (
+                value !== null &&
+                typeof value === "object" &&
+                !Array.isArray(value)
+              ) {
+                lines.push(...formDataToString(value, fullKey));
+              } else {
+                const stringValue = Array.isArray(value)
+                  ? JSON.stringify(value)
+                  : String(value);
+                lines.push(`${fullKey}=${stringValue}`);
               }
-              return `${key}=${value}`;
-            })
-            .join("\n");
-    
-          setJsonToEnvResult(envFormat);
-        } catch (error) {
-          setJsonToEnvError(`Invalid JSON: ${error.message}`);
-        }
-      };
-    
-      const clearJsonToEnv = () => {
-        setJsonToEnvInput("");
-        setJsonToEnvResult("");
-        setJsonToEnvError("");
-      };
+            }
+          }
+          return lines;
+        };
+        return formDataToString(obj).join("\n");
+
+      default:
+        throw new Error(`Unsupported destination type: ${type}`);
+    }
+  };
+
+  const handleConvert = (e) => {
+    e.preventDefault();
+    setError("");
+    setResult("");
+
+    if (!input.trim()) {
+      setError(`Please enter ${sourceType.toUpperCase()} to convert`);
+      return;
+    }
+
+    if (sourceType.toLowerCase() === destType.toLowerCase()) {
+      setError("Source and destination types cannot be the same");
+      return;
+    }
+
+    try {
+      const parsed = parseInput(input, sourceType);
+      const converted = convertToFormat(parsed, destType);
+      setResult(converted);
+    } catch (error) {
+      setError(error.message);
+    }
+  };
+
+  const clearAll = () => {
+    setInput("");
+    setResult("");
+    setError("");
+  };
+
+  const getInputLabel = () => {
+    return `${sourceType.toUpperCase()} Input`;
+  };
+
+  const getOutputLabel = () => {
+    return `${destType.toUpperCase()} Output`;
+  };
+
   return (
     <>
-    <div className="section full-width">
-      <form onSubmit={handleJsonToEnv} className="form">
-        <div className="form-group">
-          <label htmlFor="json-to-env-input">JSON Object</label>
-          <textarea
-            id="json-to-env-input"
-            className="textarea"
-            value={jsonToEnvInput}
-            onChange={(e) => setJsonToEnvInput(e.target.value)}
-            rows={10}
-            required
-          />
-        </div>
-
-        <div className="button-group">
-          <button
-            type="submit"
-            className="btn btn-primary"
-            disabled={!jsonToEnvInput.trim()}
-          >
-            Convert to .env
-          </button>
-          <button
-            type="button"
-            className="btn btn-secondary"
-            onClick={clearJsonToEnv}
-          >
-            Clear
-          </button>
-        </div>
-
-        {jsonToEnvError && (
-          <div className="error-message">{jsonToEnvError}</div>
-        )}
-
-        {jsonToEnvResult && (
-          <div className="result-container">
-            <div className="result-header">
-              <label>.env File Format</label>
-              <button
-                type="button"
-                className="btn-copy"
-                onClick={() => copyToClipboard(jsonToEnvResult)}
-                title="Copy to clipboard"
+      <div className="section full-width">
+        <form onSubmit={handleConvert} className="form">
+          <div className="format-selectors">
+            <div className="form-group">
+              <label>Source Format</label>
+              <select
+                className="textarea"
+                value={sourceType}
+                onChange={(e) => {
+                  setSourceType(e.target.value);
+                  setResult("");
+                  setError("");
+                }}
               >
-                📋 Copy
-              </button>
+                <option value="json" selected>JSON</option>
+                <option value="yml">YML</option>
+                <option value="yaml">YAML</option>
+                <option value="formdata">FormData</option>
+              </select>
             </div>
+
+            <div className="form-group">
+              <label>Destination Format</label>
+              <select
+                className="textarea"
+                value={destType}
+                onChange={(e) => {
+                  setDestType(e.target.value);
+                  setResult("");
+                  setError("");
+                }}
+              >
+                <option value="json">JSON</option>
+                <option value="yml">YML</option>
+                <option value="yaml">YAML</option>
+                <option value="env" selected>.env</option>
+                <option value="formdata">FormData</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="converter-input">{getInputLabel()}</label>
             <textarea
-              className="textarea result-textarea"
-              value={jsonToEnvResult}
-              readOnly
-              rows={15}
+              id="converter-input"
+              className="textarea"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              rows={12}
+              required
             />
           </div>
-        )}
-      </form>
-    </div>
-  </>
-  )
+
+          <div className="button-group">
+            <button
+              type="submit"
+              className="btn btn-primary"
+              disabled={
+                !input.trim() ||
+                sourceType.toLowerCase() === destType.toLowerCase()
+              }
+            >
+              Convert {sourceType.toUpperCase()} to {destType.toUpperCase()}
+            </button>
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={clearAll}
+            >
+              Clear
+            </button>
+          </div>
+
+          {error && <div className="error-message">{error}</div>}
+
+          {result && (
+            <div className="result-container">
+              <div className="result-header">
+                <label>{getOutputLabel()}</label>
+                <button
+                  type="button"
+                  className="btn-copy"
+                  onClick={() => copyToClipboard(result)}
+                  title="Copy to clipboard"
+                >
+                  📋 Copy
+                </button>
+              </div>
+              <textarea
+                className="textarea result-textarea"
+                value={result}
+                readOnly
+                rows={15}
+              />
+            </div>
+          )}
+        </form>
+      </div>
+    </>
+  );
 }
 
 export default Converter;
