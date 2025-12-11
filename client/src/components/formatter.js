@@ -48,13 +48,13 @@ function Formatter() {
     <div className="section">
       <form className="form" onSubmit={handleFormat}>
         <div className="form-group">
-          <label htmlFor="format-input">📝 Unstructured JSON</label>
+          <label htmlFor="format-input">Unstructured JSON</label>
           <textarea
             id="format-input"
             className="textarea"
             value={formatInput}
             onChange={(e) => setFormatInput(e.target.value)}
-            rows={10}
+            rows={12}
             required
             placeholder="Paste your unformatted JSON here..."
           />
@@ -66,14 +66,14 @@ function Formatter() {
             className="btn btn-primary"
             disabled={!formatInput.trim()}
           >
-            ✨ Format JSON
+            Format JSON
           </button>
           <button
             type="button"
             className="btn btn-secondary"
             onClick={clearFormat}
           >
-            🗑️ Clear
+            Clear
           </button>
         </div>
 
@@ -82,14 +82,14 @@ function Formatter() {
         {formatResult && (
           <div className="result-container">
             <div className="result-header">
-              <label>✅ Formatted JSON</label>
+              <label>Formatted JSON</label>
               <button
                 type="button"
                 className="btn-copy"
                 onClick={() => copyToClipboard(formatResult)}
                 title="Copy to clipboard"
               >
-                📋 Copy
+                Copy
               </button>
             </div>
             <textarea

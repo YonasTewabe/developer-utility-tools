@@ -106,7 +106,7 @@ export default function Encryption() {
       <div className="section">
         <form className="form" onSubmit={handleEncrypt}>
           <div className="form-group">
-            <label htmlFor="encrypt-input">🔐 Input JSON</label>
+            <label htmlFor="encrypt-input">Input JSON</label>
             <textarea
               id="encrypt-input"
               className="textarea"
@@ -124,14 +124,14 @@ export default function Encryption() {
               className="btn btn-primary"
               disabled={encryptLoading || !encryptInput.trim()}
             >
-              {encryptLoading ? "⏳ Encrypting..." : "🔒 Encrypt"}
+              {encryptLoading ? "Encrypting..." : "Encrypt"}
             </button>
             <button
               type="button"
               className="btn btn-secondary"
               onClick={clearEncrypt}
             >
-              🗑️ Clear
+              Clear
             </button>
           </div>
 
@@ -142,14 +142,14 @@ export default function Encryption() {
           {encryptResult && (
             <div className="result-container">
               <div className="result-header">
-                <label>✅ Encrypted Result</label>
+                <label>Encrypted Result</label>
                 <button
                   type="button"
                   className="btn-copy"
                   onClick={() => copyToClipboard(encryptResult)}
                   title="Copy to clipboard"
                 >
-                  📋 Copy
+                  Copy
                 </button>
               </div>
               <textarea
@@ -166,7 +166,7 @@ export default function Encryption() {
       <div className="section">
         <form className="form" onSubmit={handleDecrypt}>
           <div className="form-group">
-            <label htmlFor="decrypt-input">🔓 Encrypted Data</label>
+            <label htmlFor="decrypt-input">Encrypted Data</label>
             <textarea
               id="decrypt-input"
               className="textarea"
@@ -184,32 +184,32 @@ export default function Encryption() {
               className="btn btn-primary"
               disabled={decryptLoading || !decryptInput.trim()}
             >
-              {decryptLoading ? "⏳ Decrypting..." : "🔓 Decrypt"}
+              {decryptLoading ? "Decrypting..." : "Decrypt"}
             </button>
             <button
               type="button"
               className="btn btn-secondary"
               onClick={clearDecrypt}
             >
-              🗑️ Clear
+              Clear
             </button>
           </div>
 
           {decryptError && (
-            <div className="error-message">⚠️ {decryptError}</div>
+            <div className="error-message">{decryptError}</div>
           )}
 
           {decryptResult && (
             <div className="result-container">
               <div className="result-header">
-                <label>✅ Decrypted Result</label>
+                <label>Decrypted Result</label>
                 <button
                   type="button"
                   className="btn-copy"
                   onClick={() => copyToClipboard(decryptResult)}
                   title="Copy to clipboard"
                 >
-                  📋 Copy
+                  Copy
                 </button>
               </div>
               <textarea

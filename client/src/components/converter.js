@@ -66,6 +66,73 @@ function Converter() {
           throw new Error(`Invalid FormData: ${e.message}`);
         }
 
+      case "xml":
+        try {
+          const parser = new DOMParser();
+          const xmlDoc = parser.parseFromString(text, "text/xml");
+          const parseError = xmlDoc.querySelector("parsererror");
+          if (parseError) {
+            throw new Error("Invalid XML structure");
+          }
+
+          const xmlToObject = (node) => {
+            const obj = {};
+            if (node.nodeType === 1) {
+              // Element node
+              if (node.childNodes.length === 0) {
+                return "";
+              }
+
+              const textContent = Array.from(node.childNodes)
+                .filter((n) => n.nodeType === 3)
+                .map((n) => n.textContent)
+                .join("")
+                .trim();
+
+              const hasOnlyText =
+                node.childNodes.length === 1 &&
+                node.childNodes[0].nodeType === 3;
+
+              if (hasOnlyText && textContent) {
+                return textContent;
+              }
+
+              const children = Array.from(node.childNodes).filter(
+                (n) => n.nodeType === 1
+              );
+
+              if (children.length > 0) {
+                children.forEach((child) => {
+                  const childName = child.nodeName;
+                  const childValue = xmlToObject(child);
+
+                  if (obj[childName]) {
+                    if (!Array.isArray(obj[childName])) {
+                      obj[childName] = [obj[childName]];
+                    }
+                    obj[childName].push(childValue);
+                  } else {
+                    obj[childName] = childValue;
+                  }
+                });
+
+                if (textContent) {
+                  obj._text = textContent;
+                }
+              } else if (textContent) {
+                return textContent;
+              }
+            }
+            return obj;
+          };
+
+          const root = xmlDoc.documentElement;
+          const result = { [root.nodeName]: xmlToObject(root) };
+          return result[root.nodeName] || result;
+        } catch (e) {
+          throw new Error(`Invalid XML: ${e.message}`);
+        }
+
       default:
         throw new Error(`Unsupported source type: ${type}`);
     }
@@ -153,6 +220,67 @@ function Converter() {
         };
         return formDataToString(obj).join("\n");
 
+      case "xml":
+        try {
+          const objectToXml = (obj, rootName = "root") => {
+            const escapeXml = (str) => {
+              if (typeof str !== "string") return str;
+              return str
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&apos;");
+            };
+
+            const buildXml = (data, tagName) => {
+              if (data === null || data === undefined) {
+                return `<${tagName}></${tagName}>`;
+              }
+
+              if (
+                typeof data === "string" ||
+                typeof data === "number" ||
+                typeof data === "boolean"
+              ) {
+                return `<${tagName}>${escapeXml(String(data))}</${tagName}>`;
+              }
+
+              if (Array.isArray(data)) {
+                return data.map((item) => buildXml(item, tagName)).join("");
+              }
+
+              if (typeof data === "object") {
+                const xmlParts = [];
+                for (const key in data) {
+                  if (data.hasOwnProperty(key) && key !== "_text") {
+                    const value = data[key];
+                    if (Array.isArray(value)) {
+                      value.forEach((item) => {
+                        xmlParts.push(buildXml(item, key));
+                      });
+                    } else {
+                      xmlParts.push(buildXml(value, key));
+                    }
+                  }
+                }
+                const xml = xmlParts.join("");
+                const textContent = data._text ? escapeXml(data._text) : "";
+                return `<${tagName}>${xml}${textContent}</${tagName}>`;
+              }
+
+              return `<${tagName}>${escapeXml(String(data))}</${tagName}>`;
+            };
+
+            const xmlContent = buildXml(obj, rootName);
+            return '<?xml version="1.0" encoding="UTF-8"?>\n' + xmlContent;
+          };
+
+          return objectToXml(obj, "root");
+        } catch (e) {
+          throw new Error(`Error converting to XML: ${e.message}`);
+        }
+
       default:
         throw new Error(`Unsupported destination type: ${type}`);
     }
@@ -213,6 +341,7 @@ function Converter() {
             >
               <option value="json">JSON</option>
               <option value="yaml">YAML</option>
+              <option value="xml">XML</option>
               <option value="formdata">FormData</option>
             </select>
           </div>
@@ -228,9 +357,11 @@ function Converter() {
                 setError("");
               }}
             >
+              <option value="env">.env</option>
+
               <option value="json">JSON</option>
               <option value="yaml">YAML</option>
-              <option value="env">.env</option>
+              <option value="xml">XML</option>
               <option value="formdata">FormData</option>
             </select>
           </div>
@@ -258,14 +389,14 @@ function Converter() {
               sourceType.toLowerCase() === destType.toLowerCase()
             }
           >
-            🔄 Convert {sourceType.toUpperCase()} to {destType.toUpperCase()}
+            Convert {sourceType.toUpperCase()} to {destType.toUpperCase()}
           </button>
           <button
             type="button"
             className="btn btn-secondary"
             onClick={clearAll}
           >
-            🗑️ Clear
+            Clear
           </button>
         </div>
 
@@ -281,7 +412,7 @@ function Converter() {
                 onClick={() => copyToClipboard(result)}
                 title="Copy to clipboard"
               >
-                📋 Copy
+                Copy
               </button>
             </div>
             <textarea

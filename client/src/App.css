@@ -1,60 +1,39 @@
 /* App Container */
 .App {
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding: 20px;
-  padding-top: 60px;
+  background: #f5f5f5;
+  display: flex;
 }
 
-@media (max-width: 968px) {
-  .App {
-    padding-top: 58px;
-  }
-}
-
-@media (max-width: 480px) {
-  .App {
-    padding: 10px;
-    padding-top: 54px;
-  }
-}
-
-/* Navigation */
-.sub-header {
+/* Sidebar */
+.sidebar {
   position: fixed;
   top: 0;
   left: 0;
-  right: 0;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding: 8px 20px;
+  bottom: 0;
+  width: 250px;
+  background: linear-gradient(135deg, #667eea 0%, #5568d3 100%);
+  padding: 20px;
   z-index: 1000;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
-
-@media (max-width: 480px) {
-  .sub-header {
-    padding: 6px 10px;
-  }
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
 }
 
 .tab-navigation {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   gap: 12px;
-  max-width: 1200px;
-  margin: 0 auto;
-  flex-wrap: wrap;
+  margin-top: 20px;
+  flex: 1;
 }
 
-@media (max-width: 480px) {
-  .tab-navigation {
-    gap: 8px;
-  }
-}
-
-.tab {
-  padding: 8px 20px;
-  background: rgba(255, 255, 255, 0.2);
+.clear-all-btn {
+  width: 100%;
+  padding: 12px 20px;
+  margin-top: auto;
+  background: rgba(255, 255, 255, 0.15);
   border: 2px solid rgba(255, 255, 255, 0.3);
   border-radius: 10px;
   color: white;
@@ -64,17 +43,45 @@
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   backdrop-filter: blur(10px);
   box-shadow: none;
+  text-align: center;
 }
 
-.tab:not(.active):hover {
-  background: rgba(255, 255, 255, 0.3);
+.clear-all-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
   border-color: rgba(255, 255, 255, 0.5);
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-.tab:active {
+.clear-all-btn:active {
   transform: translateY(0);
+}
+
+.tab {
+  width: 100%;
+  padding: 14px 20px;
+  background: rgba(255, 255, 255, 0.2);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 10px;
+  color: white;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(10px);
+  box-shadow: none;
+  text-align: left;
+}
+
+.tab:not(.active):hover {
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: translateX(4px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.tab:active {
+  transform: translateX(0);
 }
 
 .tab.active {
@@ -84,10 +91,70 @@
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
 }
 
-@media (max-width: 480px) {
+/* Main Content */
+.main-content {
+  flex: 1;
+  margin-left: 250px;
+  padding: 20px;
+  min-height: 100vh;
+}
+
+@media (max-width: 968px) {
+  .sidebar {
+    width: 200px;
+  }
+
+  .main-content {
+    margin-left: 200px;
+  }
+
   .tab {
-    padding: 6px 16px;
+    padding: 12px 16px;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    width: 180px;
+    padding: 15px;
+  }
+
+  .main-content {
+    margin-left: 180px;
+    padding: 15px;
+  }
+
+  .tab {
+    padding: 10px 14px;
     font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .sidebar {
+    width: 100%;
+    height: auto;
+    position: relative;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
+
+  .tab-navigation {
+    flex-direction: row;
+    flex-wrap: wrap;
+    margin-top: 0;
+  }
+
+  .tab {
+    flex: 1;
+    min-width: 120px;
+    padding: 10px 12px;
+    font-size: 0.8rem;
+  }
+
+  .main-content {
+    margin-left: 0;
+    padding: 10px;
   }
 }
 
@@ -114,7 +181,7 @@
 .section {
   background: white;
   border-radius: 16px;
-  padding: 40px;
+  padding: 20px;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
   transition: transform 0.3s, box-shadow 0.3s;
 }
@@ -149,7 +216,7 @@
 .format-selectors {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 20px;
+  gap: 15px;
 }
 
 @media (max-width: 480px) {
@@ -161,10 +228,10 @@
 /* Select */
 select.textarea {
   width: 100%;
-  padding: 14px 16px;
+  padding: 8px 12px;
   border: 2px solid #e0e0e0;
-  border-radius: 10px;
-  font-size: 1rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
   font-weight: 500;
   background: white;
   cursor: pointer;
@@ -172,9 +239,9 @@ select.textarea {
   appearance: none;
   background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23667eea' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
   background-repeat: no-repeat;
-  background-position: right 12px center;
-  background-size: 20px;
-  padding-right: 40px;
+  background-position: right 10px center;
+  background-size: 16px;
+  padding-right: 35px;
 }
 
 select.textarea:focus {
@@ -247,7 +314,7 @@ select.textarea:hover {
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #667eea 0%, #5568d3 100%);
   color: white;
   box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
 }
@@ -309,7 +376,7 @@ select.textarea:hover {
 
 .btn-copy {
   padding: 8px 16px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #667eea 0%, #5568d3 100%);
   color: white;
   border: none;
   border-radius: 8px;
