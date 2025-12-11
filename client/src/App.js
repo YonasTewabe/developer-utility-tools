@@ -11,9 +11,6 @@ function App() {
 
   return (
     <div className="App">
-      <header className="App-header">
-        <h1>🔐 Encryption Decryption Tool</h1>
-      </header>
       <nav className="sub-header">
         <div className="tab-navigation">
           <button
