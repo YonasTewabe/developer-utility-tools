@@ -2,7 +2,6 @@ const express = require("express");
 const router = express.Router();
 const EncryptionService = require("../services/encryption.service");
 
-// Initialize encryption service
 const encryptionService = new EncryptionService();
 
 /**
@@ -22,7 +21,6 @@ router.post("/encrypt", async (req, res) => {
       });
     }
 
-    // Try to parse as JSON first
     let encryptedData;
     let dataType = "text";
 
@@ -31,7 +29,6 @@ router.post("/encrypt", async (req, res) => {
       encryptedData = encryptionService.encryptObject(jsonData);
       dataType = "object";
     } catch (error) {
-      // If not JSON, encrypt as plain text
       const textData = typeof data === "string" ? data : JSON.stringify(data);
       encryptedData = encryptionService.encryptText(textData);
       dataType = "text";
@@ -59,7 +56,6 @@ router.post("/encrypt", async (req, res) => {
  */
 router.post("/decrypt", async (req, res) => {
   try {
-    // Accept both 'data' and 'encryptedData' for backward compatibility
     let encryptedData = req.body.data || req.body.encryptedData;
 
     if (!encryptedData) {
@@ -70,10 +66,8 @@ router.post("/decrypt", async (req, res) => {
       });
     }
 
-    // Ensure the data is a string and trim whitespace
     encryptedData = String(encryptedData).trim();
 
-    // Check if the data is encrypted
     if (!encryptionService.isEncrypted(encryptedData)) {
       return res.status(400).json({
         statusCode: 400,
@@ -82,7 +76,6 @@ router.post("/decrypt", async (req, res) => {
       });
     }
 
-    // Try to decrypt as object first (JSON)
     try {
       const decryptedObject = encryptionService.decryptObject(encryptedData);
       return res.status(200).json({
@@ -92,7 +85,6 @@ router.post("/decrypt", async (req, res) => {
         type: "object",
       });
     } catch (error) {
-      // If object decryption fails, try as plain text
       const decryptedText = encryptionService.decryptText(encryptedData);
       return res.status(200).json({
         statusCode: 200,
