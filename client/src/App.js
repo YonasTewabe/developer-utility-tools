@@ -5,6 +5,7 @@ import "./App.css";
 import Encryption from "./components/encryption";
 import Formatter from "./components/formatter";
 import Converter from "./components/converter";
+import DiffChecker from "./components/diffChecker";
 
 function App() {
   const [activeTab, setActiveTab] = useState("encryption");
@@ -36,6 +37,12 @@ function App() {
           >
             File Format Converter
           </button>
+          <button
+            className={`tab ${activeTab === "diffChecker" ? "active" : ""}`}
+            onClick={() => setActiveTab("diffChecker")}
+          >
+            Diff Checker
+          </button>
         </div>
         <button className="clear-all-btn" onClick={handleClearAll}>
           Clear All
@@ -45,7 +52,10 @@ function App() {
       <div className="main-content">
         <div
           className={`container ${
-            activeTab === "json" || activeTab === "converter"
+            activeTab === "encryption" ||
+            activeTab === "json" ||
+            activeTab === "converter" ||
+            activeTab === "diffChecker"
               ? "full-width"
               : ""
           }`}
@@ -53,6 +63,7 @@ function App() {
           {activeTab === "encryption" && <Encryption key={resetKey} />}
           {activeTab === "json" && <Formatter key={resetKey} />}
           {activeTab === "converter" && <Converter key={resetKey} />}
+          {activeTab === "diffChecker" && <DiffChecker key={resetKey} />}
         </div>
       </div>
       <ToastContainer />

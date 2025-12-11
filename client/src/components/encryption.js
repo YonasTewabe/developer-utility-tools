@@ -102,8 +102,8 @@ export default function Encryption() {
     setDecryptError("");
   };
   return (
-    <>
-      <div className="section">
+    <div className="section">
+      <div className="encryption-inputs">
         <form className="form" onSubmit={handleEncrypt}>
           <div className="form-group">
             <label htmlFor="encrypt-input">Input JSON</label>
@@ -112,7 +112,7 @@ export default function Encryption() {
               className="textarea"
               value={encryptInput}
               onChange={(e) => setEncryptInput(e.target.value)}
-              rows={10}
+              rows={14}
               required
               placeholder="Enter JSON data to encrypt..."
             />
@@ -161,9 +161,7 @@ export default function Encryption() {
             </div>
           )}
         </form>
-      </div>
 
-      <div className="section">
         <form className="form" onSubmit={handleDecrypt}>
           <div className="form-group">
             <label htmlFor="decrypt-input">Encrypted Data</label>
@@ -172,7 +170,7 @@ export default function Encryption() {
               className="textarea"
               value={decryptInput}
               onChange={(e) => setDecryptInput(e.target.value)}
-              rows={10}
+              rows={14}
               required
               placeholder="Enter encrypted data to decrypt..."
             />
@@ -196,7 +194,7 @@ export default function Encryption() {
           </div>
 
           {decryptError && (
-            <div className="error-message">{decryptError}</div>
+            <div className="error-message">⚠️ {decryptError}</div>
           )}
 
           {decryptResult && (
@@ -222,6 +220,6 @@ export default function Encryption() {
           )}
         </form>
       </div>
-    </>
+    </div>
   );
 }

@@ -96,7 +96,7 @@ function Formatter() {
               className="textarea result-textarea"
               value={formatResult}
               readOnly
-              rows={10}
+              rows={14}
             />
           </div>
         )}

@@ -167,8 +167,10 @@
   gap: 30px;
 }
 
+
 .container.full-width {
   grid-template-columns: 1fr;
+  max-width: 100%;
 }
 
 @media (max-width: 968px) {
@@ -184,6 +186,10 @@
   padding: 20px;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
   transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.section + .section {
+  margin-top: 0;
 }
 
 @media (max-width: 480px) {
@@ -221,6 +227,30 @@
 
 @media (max-width: 480px) {
   .format-selectors {
+    grid-template-columns: 1fr;
+  }
+}
+
+.diff-inputs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+@media (max-width: 768px) {
+  .diff-inputs {
+    grid-template-columns: 1fr;
+  }
+}
+
+.encryption-inputs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+@media (max-width: 768px) {
+  .encryption-inputs {
     grid-template-columns: 1fr;
   }
 }
@@ -406,4 +436,93 @@ select.textarea:hover {
   font-size: 0.95rem;
   color: #333;
   line-height: 1.6;
+}
+
+/* Diff Comparison */
+.diff-comparison {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-top: 15px;
+  max-height: 500px;
+  overflow-y: auto;
+  border: 2px solid #e0e0e0;
+  border-radius: 10px;
+  background: #fafafa;
+}
+
+.diff-side {
+  display: flex;
+  flex-direction: column;
+  background: white;
+}
+
+.diff-side-header {
+  padding: 12px 16px;
+  background: linear-gradient(135deg, #667eea 0%, #5568d3 100%);
+  color: white;
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-align: center;
+  border-bottom: 2px solid #5568d3;
+}
+
+.diff-content {
+  font-family: "Courier New", monospace;
+  font-size: 0.9rem;
+  line-height: 1.8;
+  overflow-x: auto;
+}
+
+.diff-line {
+  display: flex;
+  padding: 4px 0;
+  border-bottom: 1px solid #f0f0f0;
+  min-height: 24px;
+}
+
+.diff-line:last-child {
+  border-bottom: none;
+}
+
+.diff-line-different {
+  background: #fff5f5;
+}
+
+.diff-line-number {
+  display: inline-block;
+  min-width: 50px;
+  padding: 4px 12px;
+  background: #f8f8f8;
+  color: #666;
+  font-size: 0.85rem;
+  text-align: right;
+  border-right: 2px solid #e0e0e0;
+  user-select: none;
+}
+
+.diff-line-different .diff-line-number {
+  background: #ffe0e0;
+  color: #c33;
+  font-weight: 600;
+  border-right-color: #ffcccc;
+}
+
+.diff-line-text {
+  flex: 1;
+  padding: 4px 12px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.diff-line-different .diff-line-text {
+  background: #fff5f5;
+  color: #c33;
+}
+
+@media (max-width: 768px) {
+  .diff-comparison {
+    grid-template-columns: 1fr;
+    max-height: 400px;
+  }
 }
