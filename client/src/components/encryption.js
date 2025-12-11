@@ -53,8 +53,7 @@ export default function Encryption() {
         if (parsed && typeof parsed === "object" && parsed.data) {
           encryptedData = parsed.data;
         }
-      } catch (e) {
-      }
+      } catch (e) {}
 
       const response = await axios.post("/api/encryption/decrypt", {
         data: encryptedData,
@@ -105,9 +104,9 @@ export default function Encryption() {
   return (
     <>
       <div className="section">
-        <form onSubmit={handleEncrypt} className="form">
+        <form className="form" onSubmit={handleEncrypt}>
           <div className="form-group">
-            <label htmlFor="encrypt-input">Input JSON</label>
+            <label htmlFor="encrypt-input">🔐 Input JSON</label>
             <textarea
               id="encrypt-input"
               className="textarea"
@@ -115,6 +114,7 @@ export default function Encryption() {
               onChange={(e) => setEncryptInput(e.target.value)}
               rows={10}
               required
+              placeholder="Enter JSON data to encrypt..."
             />
           </div>
 
@@ -124,23 +124,25 @@ export default function Encryption() {
               className="btn btn-primary"
               disabled={encryptLoading || !encryptInput.trim()}
             >
-              {encryptLoading ? "Encrypting..." : "Encrypt"}
+              {encryptLoading ? "⏳ Encrypting..." : "🔒 Encrypt"}
             </button>
             <button
               type="button"
               className="btn btn-secondary"
               onClick={clearEncrypt}
             >
-              Clear
+              🗑️ Clear
             </button>
           </div>
 
-          {encryptError && <div className="error-message">{encryptError}</div>}
+          {encryptError && (
+            <div className="error-message">⚠️ {encryptError}</div>
+          )}
 
           {encryptResult && (
             <div className="result-container">
               <div className="result-header">
-                <label>Encrypted Result</label>
+                <label>✅ Encrypted Result</label>
                 <button
                   type="button"
                   className="btn-copy"
@@ -162,9 +164,9 @@ export default function Encryption() {
       </div>
 
       <div className="section">
-        <form onSubmit={handleDecrypt} className="form">
+        <form className="form" onSubmit={handleDecrypt}>
           <div className="form-group">
-            <label htmlFor="decrypt-input">Encrypted Data</label>
+            <label htmlFor="decrypt-input">🔓 Encrypted Data</label>
             <textarea
               id="decrypt-input"
               className="textarea"
@@ -172,6 +174,7 @@ export default function Encryption() {
               onChange={(e) => setDecryptInput(e.target.value)}
               rows={10}
               required
+              placeholder="Enter encrypted data to decrypt..."
             />
           </div>
 
@@ -181,23 +184,25 @@ export default function Encryption() {
               className="btn btn-primary"
               disabled={decryptLoading || !decryptInput.trim()}
             >
-              {decryptLoading ? "Decrypting..." : "Decrypt"}
+              {decryptLoading ? "⏳ Decrypting..." : "🔓 Decrypt"}
             </button>
             <button
               type="button"
               className="btn btn-secondary"
               onClick={clearDecrypt}
             >
-              Clear
+              🗑️ Clear
             </button>
           </div>
 
-          {decryptError && <div className="error-message">{decryptError}</div>}
+          {decryptError && (
+            <div className="error-message">⚠️ {decryptError}</div>
+          )}
 
           {decryptResult && (
             <div className="result-container">
               <div className="result-header">
-                <label>Decrypted Result</label>
+                <label>✅ Decrypted Result</label>
                 <button
                   type="button"
                   className="btn-copy"

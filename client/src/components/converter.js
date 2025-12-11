@@ -35,7 +35,6 @@ function Converter() {
           throw new Error(`Invalid JSON: ${e.message}`);
         }
 
-      case "yml":
       case "yaml":
         try {
           const parsed = yaml.load(text);
@@ -77,7 +76,6 @@ function Converter() {
       case "json":
         return JSON.stringify(obj, null, 2);
 
-      case "yml":
       case "yaml":
         try {
           return yaml.dump(obj, {
@@ -199,106 +197,103 @@ function Converter() {
   };
 
   return (
-    <>
-      <div className="section full-width">
-        <form onSubmit={handleConvert} className="form">
-          <div className="format-selectors">
-            <div className="form-group">
-              <label>Source Format</label>
-              <select
-                className="textarea"
-                value={sourceType}
-                onChange={(e) => {
-                  setSourceType(e.target.value);
-                  setResult("");
-                  setError("");
-                }}
-              >
-                <option value="json" selected>JSON</option>
-                <option value="yml">YML</option>
-                <option value="yaml">YAML</option>
-                <option value="formdata">FormData</option>
-              </select>
-            </div>
-
-            <div className="form-group">
-              <label>Destination Format</label>
-              <select
-                className="textarea"
-                value={destType}
-                onChange={(e) => {
-                  setDestType(e.target.value);
-                  setResult("");
-                  setError("");
-                }}
-              >
-                <option value="json">JSON</option>
-                <option value="yml">YML</option>
-                <option value="yaml">YAML</option>
-                <option value="env" selected>.env</option>
-                <option value="formdata">FormData</option>
-              </select>
-            </div>
+    <div className="section">
+      <form className="form" onSubmit={handleConvert}>
+        <div className="format-selectors">
+          <div className="form-group">
+            <label>Source Format</label>
+            <select
+              className="textarea"
+              value={sourceType}
+              onChange={(e) => {
+                setSourceType(e.target.value);
+                setResult("");
+                setError("");
+              }}
+            >
+              <option value="json">JSON</option>
+              <option value="yaml">YAML</option>
+              <option value="formdata">FormData</option>
+            </select>
           </div>
 
           <div className="form-group">
-            <label htmlFor="converter-input">{getInputLabel()}</label>
-            <textarea
-              id="converter-input"
+            <label>Destination Format</label>
+            <select
               className="textarea"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              rows={12}
-              required
+              value={destType}
+              onChange={(e) => {
+                setDestType(e.target.value);
+                setResult("");
+                setError("");
+              }}
+            >
+              <option value="json">JSON</option>
+              <option value="yaml">YAML</option>
+              <option value="env">.env</option>
+              <option value="formdata">FormData</option>
+            </select>
+          </div>
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="converter-input">{getInputLabel()}</label>
+          <textarea
+            id="converter-input"
+            className="textarea"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            rows={12}
+            required
+            placeholder={`Enter your ${sourceType.toUpperCase()} data here...`}
+          />
+        </div>
+
+        <div className="button-group">
+          <button
+            type="submit"
+            className="btn btn-primary"
+            disabled={
+              !input.trim() ||
+              sourceType.toLowerCase() === destType.toLowerCase()
+            }
+          >
+            🔄 Convert {sourceType.toUpperCase()} to {destType.toUpperCase()}
+          </button>
+          <button
+            type="button"
+            className="btn btn-secondary"
+            onClick={clearAll}
+          >
+            🗑️ Clear
+          </button>
+        </div>
+
+        {error && <div className="error-message">⚠️ {error}</div>}
+
+        {result && (
+          <div className="result-container">
+            <div className="result-header">
+              <label>{getOutputLabel()}</label>
+              <button
+                type="button"
+                className="btn-copy"
+                onClick={() => copyToClipboard(result)}
+                title="Copy to clipboard"
+              >
+                📋 Copy
+              </button>
+            </div>
+            <textarea
+              className="textarea result-textarea"
+              value={result}
+              readOnly
+              rows={15}
             />
           </div>
-
-          <div className="button-group">
-            <button
-              type="submit"
-              className="btn btn-primary"
-              disabled={
-                !input.trim() ||
-                sourceType.toLowerCase() === destType.toLowerCase()
-              }
-            >
-              Convert {sourceType.toUpperCase()} to {destType.toUpperCase()}
-            </button>
-            <button
-              type="button"
-              className="btn btn-secondary"
-              onClick={clearAll}
-            >
-              Clear
-            </button>
-          </div>
-
-          {error && <div className="error-message">{error}</div>}
-
-          {result && (
-            <div className="result-container">
-              <div className="result-header">
-                <label>{getOutputLabel()}</label>
-                <button
-                  type="button"
-                  className="btn-copy"
-                  onClick={() => copyToClipboard(result)}
-                  title="Copy to clipboard"
-                >
-                  📋 Copy
-                </button>
-              </div>
-              <textarea
-                className="textarea result-textarea"
-                value={result}
-                readOnly
-                rows={15}
-              />
-            </div>
-          )}
-        </form>
-      </div>
-    </>
+        )}
+      </form>
+    </div>
   );
 }
 
