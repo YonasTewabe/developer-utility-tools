@@ -1,16 +1,66 @@
-# Encryption Application
+# Utility Tools Application
 
-A full-stack application with Node.js backend and React frontend.
+A frontend-only React application providing a collection of useful developer and utility tools, including encryption, formatting, conversion, and more.
 
 ## Project Structure
 
 ```
 encryption/
-├── server/          # Node.js/Express backend
-├── client/          # React frontend
-├── package.json     # Root package.json with scripts
+├── public/              # Public assets
+│   └── index.html
+├── src/
+│   ├── components/     # React components
+│   ├── services/       # Service modules
+│   ├── App.js          # Main application component
+│   ├── App.css         # Application styles
+│   └── index.js        # Entry point
+├── .env                # Environment variables
+├── .env.example        # Environment variables template
+├── package.json        # Dependencies and scripts
 └── README.md
 ```
+
+## Features
+
+### 🔒 Encryption/Decryption
+- Encrypt and decrypt text and JSON objects
+- Uses AES-256-GCM encryption
+- Client-side encryption using Web Crypto API
+- Configurable encryption keys via environment variables
+- Supports both object and text encryption
+
+### 📝 JSON Formatter
+- Format and beautify unformatted JSON
+- Syntax validation
+- Easy copy-to-clipboard functionality
+
+### 🔄 File Format Converter
+- Convert between multiple data formats:
+  - JSON
+  - YAML
+  - XML
+  - FormData
+  - .env files
+- Bidirectional conversion between all supported formats
+
+### 🔍 Diff Checker
+- Compare two text inputs side-by-side
+- Highlight differences line by line
+- Show only lines with differences
+- Visual highlighting for easy identification
+
+### 🔗 URL Shortener
+- Shorten long URLs using is.gd API
+- Automatic protocol detection
+- URL validation
+- Clickable shortened URLs
+- Copy-to-clipboard functionality
+
+### 🌓 Dark Mode
+- Toggle between light and dark themes
+- iOS-style sliding toggle switch
+- Preferences saved in browser localStorage
+- Persistent across page reloads
 
 ## Getting Started
 
@@ -21,63 +71,101 @@ encryption/
 
 ### Installation
 
-1. Install all dependencies (root, server, and client):
-```bash
-npm run install-all
-```
+1. Clone the repository or navigate to the project directory
 
-Or install them separately:
+2. Install dependencies:
 ```bash
 npm install
-cd server && npm install
-cd ../client && npm install
-```
-
-### Running the Application
-
-#### Development Mode (runs both server and client)
-
-From the root directory:
-```bash
-npm run dev
-```
-
-This will start:
-- Backend server on `http://localhost:5000`
-- React frontend on `http://localhost:3000`
-
-#### Run Server and Client Separately
-
-**Backend only:**
-```bash
-npm run server
-```
-
-**Frontend only:**
-```bash
-npm run client
 ```
 
 ### Environment Variables
 
-Copy the example environment file in the server directory:
+1. Copy the example environment file:
 ```bash
-cp server/.env.example server/.env
+cp .env.example .env
 ```
 
-Then edit `server/.env` with your configuration.
+2. Edit `.env` with your encryption configuration:
+```env
+REACT_APP_ENCRYPTION_ALGORITHM=aes-256-gcm
+REACT_APP_ENCRYPTION_KEY=your-encryption-key-change-this-in-production
+REACT_APP_ENCRYPTION_IV=0123456789abcdef01234567
+REACT_APP_ENCRYPTION_SALT=default-salt
+```
+
+**Note:** In React, environment variables must be prefixed with `REACT_APP_` to be accessible in the browser. These values will be exposed in the client bundle, so use appropriate keys for your use case.
+
+### Running the Application
+
+#### Development Mode
+
+From the root directory:
+```bash
+npm start
+```
+
+This will start the React development server on `http://localhost:3000`
+
+#### Production Build
+
+To create a production build:
+```bash
+npm run build
+```
+
+The build folder will contain the optimized production files.
 
 ## Available Scripts
 
-- `npm run dev` - Run both server and client in development mode
-- `npm run server` - Run only the backend server
-- `npm run client` - Run only the React frontend
-- `npm run build` - Build the React app for production
-- `npm run install-all` - Install dependencies for root, server, and client
+- `npm start` - Start the development server
+- `npm run build` - Build the app for production
+- `npm test` - Run tests (if configured)
+- `npm run eject` - Eject from Create React App (irreversible)
 
 ## Technologies
 
-- **Backend**: Node.js, Express
-- **Frontend**: React
-- **Development**: Concurrently (for running both servers)
+- **Frontend**: React 18.2.0
+- **Styling**: CSS3 with custom components
+- **Encryption**: Web Crypto API (AES-256-GCM)
+- **Notifications**: react-toastify
+- **Data Parsing**: js-yaml
+- **Build Tool**: react-scripts (Create React App)
 
+## Features Details
+
+### Encryption Service
+- Uses Web Crypto API for browser-native encryption
+- PBKDF2 key derivation (1000 iterations, SHA-256)
+- Compatible with server-side encryption format
+- Environment variable configuration
+- Automatic key initialization
+
+### UI/UX
+- Responsive sidebar navigation
+- Full-width layouts for all tools
+- Dark mode support
+- Toast notifications for user feedback
+- Copy-to-clipboard functionality throughout
+- Clear All button to reset all components
+
+## Browser Support
+
+- Chrome (latest)
+- Firefox (latest)
+- Safari (latest)
+- Edge (latest)
+
+## Security Notes
+
+- Encryption keys are stored in environment variables
+- All encryption/decryption happens client-side
+- Environment variables are bundled into the client (consider this for production)
+- For production use, consider implementing a secure key management solution
+
+## Contributing
+
+This is a utility application. Feel free to fork and modify for your needs.
+
+## License
+
+ISC
