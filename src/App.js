@@ -11,6 +11,7 @@ import UrlShortener from "./components/urlShortener";
 function App() {
   const [activeTab, setActiveTab] = useState("encryption");
   const [resetKey, setResetKey] = useState(0);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const [darkMode, setDarkMode] = useState(() => {
     const savedDarkMode = localStorage.getItem("darkMode");
@@ -25,37 +26,106 @@ function App() {
     setResetKey((prev) => prev + 1);
   };
 
+  const handleTabClick = (tab) => {
+    setActiveTab(tab);
+    setSidebarOpen(false);
+  };
+
+  const getTabInfo = (tab) => {
+    const tabInfo = {
+      encryption: { name: "Encryption/Decryption"},
+      json: { name: "JSON Formatter"},
+      converter: { name: "File Format Converter"},
+      diffChecker: { name: "Diff Checker"},
+      urlShortener: { name: "URL Shortener"},
+    };
+    return tabInfo[tab] || { name: "Utility Tools"};
+  };
+
   return (
     <div className={`App ${darkMode ? "dark-mode" : ""}`}>
-      <nav className="sidebar">
+      {!sidebarOpen && (
+        <div className="mobile-header">
+          <button
+            className="mobile-menu-btn"
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            aria-label="Toggle menu"
+          >
+            <span className={`hamburger ${sidebarOpen ? "open" : ""}`}>
+              <span></span>
+              <span></span>
+              <span></span>
+            </span>
+          </button>
+          <div className="mobile-tab-title">
+            <span className="mobile-tab-name">{getTabInfo(activeTab).name}</span>
+          </div>
+        </div>
+      )}
+      
+      {sidebarOpen && (
+        <button
+          className="mobile-menu-btn-standalone"
+          onClick={() => setSidebarOpen(false)}
+          aria-label="Close menu"
+        >
+          <span className="hamburger open">
+            <span></span>
+            <span></span>
+            <span></span>
+          </span>
+        </button>
+      )}
+
+      {sidebarOpen && (
+        <div
+          className="sidebar-overlay"
+          onClick={() => setSidebarOpen(false)}
+        ></div>
+      )}
+
+      <nav className={`sidebar ${sidebarOpen ? "open" : ""}`}>
+        <div className="sidebar-header">
+        <button
+            className="sidebar-close-btn"
+            onClick={() => setSidebarOpen(false)}
+            aria-label="Close sidebar"
+          >
+            ✕
+          </button>
+          <div className="sidebar-title-card">
+            <h1 className="sidebar-title">Utility Tools</h1>
+          </div>
+          
+        </div>
         <div className="tab-navigation">
           <button
             className={`tab ${activeTab === "encryption" ? "active" : ""}`}
-            onClick={() => setActiveTab("encryption")}
+            onClick={() => handleTabClick("encryption")}
           >
             Encryption/Decryption
           </button>
           <button
             className={`tab ${activeTab === "json" ? "active" : ""}`}
-            onClick={() => setActiveTab("json")}
+            onClick={() => handleTabClick("json")}
           >
             JSON Formatter
           </button>
           <button
             className={`tab ${activeTab === "converter" ? "active" : ""}`}
-            onClick={() => setActiveTab("converter")}
+            onClick={() => handleTabClick("converter")}
           >
             File Format Converter
           </button>
           <button
             className={`tab ${activeTab === "diffChecker" ? "active" : ""}`}
-            onClick={() => setActiveTab("diffChecker")}
+            onClick={() => handleTabClick("diffChecker")}
           >
             Diff Checker
           </button>
           <button
             className={`tab ${activeTab === "urlShortener" ? "active" : ""}`}
-            onClick={() => setActiveTab("urlShortener")}
+            onClick={() => handleTabClick("urlShortener")}
           >
             URL Shortener
           </button>
