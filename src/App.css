@@ -546,6 +546,28 @@ select.textarea:hover {
   line-height: 1.6;
 }
 
+.short-url-display {
+  margin: 10px 0;
+  padding: 12px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.short-url-link {
+  color: #667eea;
+  text-decoration: none;
+  font-size: 1.1rem;
+  word-break: break-all;
+  display: block;
+  transition: color 0.2s;
+}
+
+.short-url-link:hover {
+  color: #5568d3;
+  text-decoration: underline;
+}
+
 /* Diff Comparison */
 .diff-comparison {
   display: grid;
@@ -735,6 +757,19 @@ select.textarea:hover {
 .dark-mode .result-container {
   background: linear-gradient(135deg, #252525 0%, #1f1f1f 100%);
   border-color: #404040;
+}
+
+.dark-mode .short-url-display {
+  background: #2a2a2a;
+  border-color: #404040;
+}
+
+.dark-mode .short-url-link {
+  color: #8b9aff;
+}
+
+.dark-mode .short-url-link:hover {
+  color: #a5b3ff;
 }
 
 .dark-mode .result-textarea {

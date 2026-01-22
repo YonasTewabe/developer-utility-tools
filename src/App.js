@@ -6,6 +6,7 @@ import Encryption from "./components/encryption";
 import Formatter from "./components/formatter";
 import Converter from "./components/converter";
 import DiffChecker from "./components/diffChecker";
+import UrlShortener from "./components/urlShortener";
 
 function App() {
   const [activeTab, setActiveTab] = useState("encryption");
@@ -52,6 +53,12 @@ function App() {
           >
             Diff Checker
           </button>
+          <button
+            className={`tab ${activeTab === "urlShortener" ? "active" : ""}`}
+            onClick={() => setActiveTab("urlShortener")}
+          >
+            URL Shortener
+          </button>
         </div>
         <div className="sidebar-actions">
           <div className="theme-toggle-container">
@@ -80,7 +87,8 @@ function App() {
             activeTab === "encryption" ||
             activeTab === "json" ||
             activeTab === "converter" ||
-            activeTab === "diffChecker"
+            activeTab === "diffChecker" ||
+            activeTab === "urlShortener"
               ? "full-width"
               : ""
           }`}
@@ -89,6 +97,7 @@ function App() {
           {activeTab === "json" && <Formatter key={resetKey} />}
           {activeTab === "converter" && <Converter key={resetKey} />}
           {activeTab === "diffChecker" && <DiffChecker key={resetKey} />}
+          {activeTab === "urlShortener" && <UrlShortener key={resetKey} />}
         </div>
       </div>
       <ToastContainer />
