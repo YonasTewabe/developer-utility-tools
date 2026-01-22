@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import axios from "axios";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import encryptionService from "../services/encryption.service";
 
 export default function Encryption() {
   const [encryptInput, setEncryptInput] = useState("");
@@ -21,18 +21,38 @@ export default function Encryption() {
     setEncryptResult("");
 
     try {
-      const response = await axios.post("/api/encryption/encrypt", {
-        data: encryptInput,
-      });
-
-      if (response.data.statusCode === 200) {
-        setEncryptResult(response.data.data);
-      } else {
-        setEncryptError(response.data.message || "Encryption failed");
+      if (!encryptInput.trim()) {
+        setEncryptError("Input cannot be empty");
+        setEncryptLoading(false);
+        return;
       }
+
+      let encryptedData;
+
+      // Try to parse as JSON object
+      try {
+        console.log("[Encryption Component] Attempting to parse as JSON...");
+        const jsonData = JSON.parse(encryptInput);
+        console.log("[Encryption Component] Parsed as JSON object, encrypting as object...");
+        encryptedData = await encryptionService.encryptObject(jsonData);
+        console.log("[Encryption Component] Encryption successful (object)");
+      } catch (parseError) {
+        // If not JSON, encrypt as text
+        console.log("[Encryption Component] Not valid JSON, encrypting as text...", parseError.message);
+        encryptedData = await encryptionService.encryptText(encryptInput);
+        console.log("[Encryption Component] Encryption successful (text)");
+      }
+
+      setEncryptResult(encryptedData);
     } catch (error) {
+      console.error("[Encryption Component] Encryption error:", error);
+      console.error("[Encryption Component] Error details:", {
+        message: error.message,
+        stack: error.stack,
+        name: error.name
+      });
       setEncryptError(
-        error.response?.data?.message || error.message || "Encryption failed"
+        error.message || "Encryption failed"
       );
     } finally {
       setEncryptLoading(false);
@@ -48,31 +68,56 @@ export default function Encryption() {
     try {
       let encryptedData = decryptInput.trim();
 
+      // Try to extract encrypted data from JSON wrapper
       try {
         const parsed = JSON.parse(encryptedData);
         if (parsed && typeof parsed === "object" && parsed.data) {
           encryptedData = parsed.data;
         }
-      } catch (e) {}
+      } catch (e) {
+        // Not JSON, use as is
+      }
 
-      const response = await axios.post("/api/encryption/decrypt", {
-        data: encryptedData,
-      });
+      if (!encryptedData) {
+        setDecryptError("Encrypted data is required");
+        setDecryptLoading(false);
+        return;
+      }
 
-      if (response.data.statusCode === 200) {
-        const result = response.data.data;
-        if (response.data.type === "object") {
-          setDecryptResult(JSON.stringify(result, null, 2));
-        } else {
-          setDecryptResult(result);
-        }
-      } else {
-        setDecryptError(response.data.message || "Decryption failed");
+      if (!encryptionService.isEncrypted(encryptedData)) {
+        setDecryptError("The provided data is not encrypted");
+        setDecryptLoading(false);
+        return;
+      }
+
+      // Try to decrypt as object first
+      try {
+        console.log("[Encryption Component] Attempting to decrypt as object...");
+        const decryptedObject = await encryptionService.decryptObject(encryptedData);
+        console.log("[Encryption Component] Decryption successful (object)");
+        setDecryptResult(JSON.stringify(decryptedObject, null, 2));
+      } catch (objectError) {
+        // If object decryption fails, try as text
+        console.log("[Encryption Component] Object decryption failed, trying as text...", objectError.message);
+        const decryptedText = await encryptionService.decryptText(encryptedData);
+        console.log("[Encryption Component] Decryption successful (text)");
+        setDecryptResult(decryptedText);
       }
     } catch (error) {
-      setDecryptError(
-        error.response?.data?.message || error.message || "Decryption failed"
-      );
+      console.error("[Encryption Component] Decryption error:", error);
+      console.error("[Encryption Component] Error details:", {
+        message: error.message,
+        stack: error.stack,
+        name: error.name
+      });
+      
+      // Provide more helpful error message
+      let errorMessage = error.message || "Decryption failed";
+      if (error.message && error.message.includes("Authentication tag verification failed")) {
+        errorMessage += "\n\nNote: If you're trying to decrypt data encrypted by the old server, make sure your REACT_APP_ENCRYPTION_KEY and REACT_APP_ENCRYPTION_SALT in .env match the server's ENCRYPTION_KEY and ENCRYPTION_SALT.";
+      }
+      
+      setDecryptError(errorMessage);
     } finally {
       setDecryptLoading(false);
     }
