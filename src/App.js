@@ -58,6 +58,7 @@ function App() {
             </span>
           </button>
           <div className="mobile-tab-title">
+            <img src="/logo.png" alt="Utility Tools logo" className="mobile-logo" />
             <span className="mobile-tab-name">{getTabInfo(activeTab).name}</span>
           </div>
         </div>
@@ -94,6 +95,7 @@ function App() {
             ✕
           </button>
           <div className="sidebar-title-card">
+            <img src="/logo.png" alt="Utility Tools logo" className="sidebar-logo" />
             <h1 className="sidebar-title">Utility Tools</h1>
           </div>
           
