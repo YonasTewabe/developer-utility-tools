@@ -1,7 +1,65 @@
-import React, { useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import * as yaml from "js-yaml";
 import "react-toastify/dist/ReactToastify.css";
+
+function LineNumberedTextarea({
+  id,
+  label,
+  value,
+  onChange,
+  rows,
+  required,
+  placeholder,
+  readOnly,
+  className = "",
+  gutterClassName = "",
+}) {
+  const textareaRef = useRef(null);
+  const gutterRef = useRef(null);
+  const safeValue = value ?? "";
+
+  const lineCount = useMemo(() => {
+    if (safeValue === "") return 1;
+    return String(safeValue).split("\n").length;
+  }, [safeValue]);
+
+  const lineNumbers = useMemo(() => {
+    return Array.from({ length: lineCount }, (_, i) => i + 1).join("\n");
+  }, [lineCount]);
+
+  const handleScroll = (e) => {
+    const scrollTop = e.currentTarget.scrollTop;
+    if (gutterRef.current) gutterRef.current.scrollTop = scrollTop;
+  };
+
+  return (
+    <div className="form-group">
+      {label ? <label htmlFor={id}>{label}</label> : null}
+      <div className={`ln-wrapper ${safeValue ? "has-value" : ""}`}>
+        <pre
+          className={`ln-gutter ${gutterClassName}`.trim()}
+          ref={gutterRef}
+          aria-hidden="true"
+        >
+          {lineNumbers}
+        </pre>
+        <textarea
+          id={id}
+          ref={textareaRef}
+          className={`textarea ${className}`}
+          value={safeValue}
+          onChange={onChange}
+          onScroll={handleScroll}
+          rows={rows}
+          required={required}
+          placeholder={placeholder}
+          readOnly={readOnly}
+        />
+      </div>
+    </div>
+  );
+}
 
 function Converter() {
   const [sourceType, setSourceType] = useState("json");
@@ -366,18 +424,15 @@ function Converter() {
           </div>
         </div>
 
-        <div className="form-group">
-          <label htmlFor="converter-input">{getInputLabel()}</label>
-          <textarea
-            id="converter-input"
-            className="textarea"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            rows={12}
-            required
-            placeholder={`Enter your ${sourceType.toUpperCase()} data here...`}
-          />
-        </div>
+        <LineNumberedTextarea
+          id="converter-input"
+          label={getInputLabel()}
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          rows={12}
+          required
+          placeholder={`Enter your ${sourceType.toUpperCase()} data here...`}
+        />
 
         <div className="button-group">
           <button
@@ -414,11 +469,15 @@ function Converter() {
                 Copy
               </button>
             </div>
-            <textarea
-              className="textarea result-textarea"
+            <LineNumberedTextarea
+              id="converter-output"
+              label=""
               value={result}
-              readOnly
+              onChange={() => {}}
               rows={15}
+              readOnly
+              className="result-textarea"
+              gutterClassName="ln-gutter-output"
             />
           </div>
         )}

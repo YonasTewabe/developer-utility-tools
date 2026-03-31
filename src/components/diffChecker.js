@@ -1,6 +1,56 @@
-import React, { useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+
+function LineNumberedTextarea({
+  id,
+  label,
+  value,
+  onChange,
+  rows,
+  placeholder,
+  readOnly,
+  className = "",
+}) {
+  const gutterRef = useRef(null);
+  const safeValue = value ?? "";
+
+  const lineCount = useMemo(() => {
+    if (safeValue === "") return 1;
+    return String(safeValue).split("\n").length;
+  }, [safeValue]);
+
+  const lineNumbers = useMemo(() => {
+    return Array.from({ length: lineCount }, (_, i) => i + 1).join("\n");
+  }, [lineCount]);
+
+  const handleScroll = (e) => {
+    if (gutterRef.current) {
+      gutterRef.current.scrollTop = e.currentTarget.scrollTop;
+    }
+  };
+
+  return (
+    <div className="form-group">
+      <label htmlFor={id}>{label}</label>
+      <div className={`ln-wrapper ${safeValue ? "has-value" : ""}`}>
+        <pre className="ln-gutter" ref={gutterRef} aria-hidden="true">
+          {lineNumbers}
+        </pre>
+        <textarea
+          id={id}
+          className={`textarea ${className}`}
+          value={safeValue}
+          onChange={onChange}
+          onScroll={handleScroll}
+          rows={rows}
+          placeholder={placeholder}
+          readOnly={readOnly}
+        />
+      </div>
+    </div>
+  );
+}
 
 export default function DiffChecker() {
   const [leftInput, setLeftInput] = useState("");
@@ -39,8 +89,8 @@ export default function DiffChecker() {
     setDiffResult(null);
 
     setTimeout(() => {
-      if (!leftInput.trim() && !rightInput.trim()) {
-        setError("Both fields cannot be empty.");
+      if (!leftInput.trim() || !rightInput.trim()) {
+        setError("Please fill both fields before comparing.");
         setLoading(false);
         return;
       }
@@ -71,34 +121,30 @@ export default function DiffChecker() {
       <div className="section">
         <form className="form" onSubmit={handleCompare}>
           <div className="diff-inputs">
-            <div className="form-group">
-              <label>Original Text</label>
-              <textarea
-                className="textarea"
-                value={leftInput}
-                onChange={(e) => setLeftInput(e.target.value)}
-                rows={14}
-                placeholder="Enter original text..."
-              />
-            </div>
+            <LineNumberedTextarea
+              id="diff-original-input"
+              label="Original Text"
+              value={leftInput}
+              onChange={(e) => setLeftInput(e.target.value)}
+              rows={14}
+              placeholder="Enter original text..."
+            />
 
-            <div className="form-group">
-              <label>Modified Text</label>
-              <textarea
-                className="textarea"
-                value={rightInput}
-                onChange={(e) => setRightInput(e.target.value)}
-                rows={14}
-                placeholder="Enter modified text..."
-              />
-            </div>
+            <LineNumberedTextarea
+              id="diff-modified-input"
+              label="Modified Text"
+              value={rightInput}
+              onChange={(e) => setRightInput(e.target.value)}
+              rows={14}
+              placeholder="Enter modified text..."
+            />
           </div>
 
           <div className="button-group">
             <button
               type="submit"
               className="btn btn-primary"
-              disabled={loading || (!leftInput.trim() && !rightInput.trim())}
+              disabled={loading || !leftInput.trim() || !rightInput.trim()}
             >
               {loading ? "Comparing..." : "Compare"}
             </button>
